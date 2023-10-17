@@ -1,0 +1,22 @@
+{
+  "name": "cap-nodejs",
+  "version": "1.0.0",
+  "description": "Its a monorepo using npm workspace concept to easily manage my projects within a single repo.",
+  "repository": "https://github.com/lambavikas/cap-nodejs",
+  "dependencies": {
+    "@sap/cds": ">=7"
+  },
+  "workspaces": [
+    "./bookshop"
+  ],
+  "devDependencies": {
+    "sqlite3": "^5"
+  },
+  "scripts": {
+    "cleanup": "rm -rf node_modules && rm -rf */node_modules && rm -rf */*/node_modules",
+    "bookshop": "cds watch bookshop"
+  },
+  "keywords": [],
+  "author": "vikas.lamba@sap.com",
+  "license": "ISC"
+}
