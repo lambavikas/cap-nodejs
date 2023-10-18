@@ -1,4 +1,4 @@
-# Getting Started
+# Overview
 
 A simple implemntation of `bookshop`. It contains these folders and files, following our recommended project layout:
 
