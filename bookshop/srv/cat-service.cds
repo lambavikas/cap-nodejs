@@ -8,4 +8,6 @@ service CatalogService @(path:'/browse') {
 
   @requires: 'authenticated-user'
   action submitOrder (book: Books:ID, quantity: Integer);
+
+  function hello (to:String) returns String;
 }
