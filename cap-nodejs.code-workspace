@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../samples"
+		},
+		{
+			"path": "../risk-management-cap-tutorial"
+		}
+	],
+	"settings": {}
+}
