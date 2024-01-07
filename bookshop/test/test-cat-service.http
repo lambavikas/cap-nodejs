@@ -1,8 +1,0 @@
-### Query with OData Options
-GET http://localhost:4004/browse/Books?$select=ID,title
-
-###
-GET http://localhost:4004/odata/v4/admin/Authors?$search=Bro
-
-### Test the function
-GET http://localhost:4004/browse/hello(to='world')

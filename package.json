@@ -7,14 +7,14 @@
     "@sap/cds": ">=7"
   },
   "workspaces": [
-    "./bookshop"
+    "./cpapp"
   ],
   "devDependencies": {
     "sqlite3": "^5"
   },
   "scripts": {
     "cleanup": "rm -rf node_modules && rm -rf */node_modules && rm -rf */*/node_modules",
-    "bookshop": "cds watch bookshop"
+    "cpapp": "cds watch cpapp"
   },
   "keywords": [],
   "author": "vikas.lamba@sap.com",
