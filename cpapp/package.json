@@ -1,23 +1,24 @@
 {
-    "name": "cpapp",
-    "version": "1.0.0",
-    "description": "A simple CAP project.",
-    "repository": "https://github.com/lambavikas/cap-nodejs.git",
-    "license": "UNLICENSED",
-    "private": true,
-    "dependencies": {
-        "@sap/cds": "^7",
-        "express": "^4"
-    },
-    "devDependencies": {
-        "@cap-js/sqlite": "^1",
-        "@sap/ux-specification": "UI5-1.120"
-    },
-    "scripts": {
-        "start": "cds-serve",
-        "watch-risks": "cds watch --open risks/webapp/index.html?sap-ui-xx-viewCache=false"
-    },
-    "sapux": [
-        "app/risks"
-    ]
+  "name": "cpapp",
+  "version": "1.0.0",
+  "description": "A simple CAP project.",
+  "repository": "https://github.com/lambavikas/cap-nodejs.git",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@sap/cds": "^7",
+    "express": "^4"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^1",
+    "@sap/ux-specification": "^1.120.1"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "watch-risks": "cds watch --open risks/webapp/index.html?sap-ui-xx-viewCache=false",
+    "watch-mitigations": "cds watch --open mitigations/webapp/index.html?sap-ui-xx-viewCache=false"
+  },
+  "sapux": [
+    "app/risks"
+  ]
 }
