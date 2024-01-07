@@ -20,5 +20,30 @@
   },
   "sapux": [
     "app/risks"
-  ]
+  ],
+  "cds": {
+    "requires": {
+      "[development]": {
+        "auth": {
+          "kind": "mocked",
+          "users": {
+            "viewer": {
+              "password": "initial",
+              "ID": "viewer",
+              "roles": [
+                "RiskViewer"
+              ]
+            },
+            "manager": {
+              "password": "initial",
+              "ID": "manager",
+              "roles": [
+                "RiskManager"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
 }
