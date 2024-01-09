@@ -10,11 +10,14 @@
     "./cpapp"
   ],
   "devDependencies": {
+    "@sap/cds-dk": "^7",
     "sqlite3": "^5"
   },
   "scripts": {
     "cleanup": "rm -rf node_modules && rm -rf */node_modules && rm -rf */*/node_modules",
-    "cpapp": "cds watch cpapp"
+    "cpapp-run": "cds watch cpapp",
+    "cpapp-build": "mbt build -s ./cpapp -t ./cpapp",
+    "cpapp-deploy": "cf deploy ./cpapp/cpapp_1.0.0.mtar"
   },
   "keywords": [],
   "author": "vikas.lamba@sap.com",
