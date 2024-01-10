@@ -40,14 +40,14 @@
                     "users": {
                         "viewer": {
                             "password": "initial",
-                            "ID": "viewer",
+                            "id": "viewer",
                             "roles": [
                                 "RiskViewer"
                             ]
                         },
                         "manager": {
                             "password": "initial",
-                            "ID": "manager",
+                            "id": "manager",
                             "roles": [
                                 "RiskManager"
                             ]

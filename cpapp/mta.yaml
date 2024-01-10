@@ -59,17 +59,17 @@ modules:
       instance:
         destinations:                   #All these will be destinations configured under the destination service instance <cpapp-destination>, not at BTP sub-account level
         - Authentication: OAuth2UserTokenExchange                   # Auth Type of our destination
-          Name: cpapp-app-srv                                       # Destination Name
+          Name: cpapp-app-srv                                       # Destination Name pointing to the CAP Service Endpoint
           TokenServiceInstanceName: cpapp-uaa                       # Name of the xsuaa instance used for token creation
           TokenServiceKeyName: cpapp-uaa-key                        # service key to communicate with the xsuaa instance to perform token exchnage and configure OAuth2UserTokenExchange 
           URL: ~{srv-api/srv-url}                                   # Access the CAP service endpoint and make that as the Destination URL dynamically
           sap.cloud.service: cpapp.service                          # Goes under Additonal Properties -> {"sap.cloud.service":"cpapp.service"}, we also configured this in manifest.json files of our UIs
-        - Name: cpapp-html5-repo-host                         
+        - Name: cpapp-html5-repo-host                               # Destination pointing to the HTML5 Repository
           ServiceInstanceName: cpapp-html5-repo-host
           ServiceKeyName: cpapp-html5-repo-host-key
           sap.cloud.service: cpapp.service
         - Authentication: OAuth2UserTokenExchange                   # Auth Type of our destination 
-          Name: cpapp-uaa                                           # Destination Name
+          Name: cpapp-uaa                                           # Destination Name pointing to XSUAA
           ServiceInstanceName: cpapp-uaa                            # Name of the xsuaa instance that this destination points at
           ServiceKeyName: cpapp-uaa-key                             # service key to communicate with the xsuaa instance 
           sap.cloud.service: cpapp.service

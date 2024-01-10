@@ -154,13 +154,13 @@
                 "id": "app"
             }
         },
+        "sap.fiori": {
+            "registrationIds": [],
+            "archeType": "transactional"
+        },
         "sap.cloud": {
             "public": true,
             "service": "cpapp.service"
         }
-    },
-    "sap.cloud": {
-        "public": true,
-        "service": "cpapp.service"
     }
 }
