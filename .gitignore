@@ -23,3 +23,41 @@ reviews/db/test.db
 
 **/@types
 tutorial
+
+# CAP cpapp
+_out
+*.db
+*.sqlite
+connection.properties
+default-*.json
+.cdsrc-private.json
+gen/
+node_modules/
+target/
+
+# Web IDE, App Studio
+.che/
+.gen/
+
+# MTA
+*_mta_build_tmp
+*.mtar
+mta_archives/
+
+# Other
+.DS_Store
+*.orig
+*.log
+
+*.iml
+*.flattened-pom.xml
+
+# IDEs
+# .vscode
+# .idea
+
+
+#UI5 Build Files
+dist/
+resources/
+app/*/package-lock.json

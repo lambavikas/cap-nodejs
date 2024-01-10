@@ -1,61 +1,170 @@
-_schema-version: '3.1'
+_schema-version: "3.1"
 ID: cpapp
+description: A simple CAP project.
 version: 1.0.0
-description: "A simple CAP project."
 parameters:
+  deploy_mode: html5-repo
   enable-parallel-deployments: true
+
 build-parameters:
   before-all:
-    - builder: custom
-      commands:
-        - npm install --production
-        - npx -p @sap/cds-dk cds build --production
-        - npx rimraf gen/db/src/gen/data              # removes the data folder with csv files before deploying to HANA
-modules:
-  - name: cpapp-srv
-    type: nodejs
-    path: gen/srv
-    parameters:
-      buildpack: nodejs_buildpack
-    build-parameters:
-      builder: npm
-    provides:
-      - name: srv-api # required by consumers of CAP services (e.g. approuter)
-        properties:
-          srv-url: ${default-url}
-    requires:
-      - name: cpapp-uaa
-      - name: cpapp-db
+  - builder: custom
+    commands:
+    - npm install --production
+    - npx -p @sap/cds-dk cds build --production
+    - npx rimraf gen/db/src/gen/data                    #removes the data folder to avoid deploying csv files in productive HANA deployments
 
-  - name: cpapp-db-deployer
-    type: hdb
-    path: gen/db
-    parameters:
-      buildpack: nodejs_buildpack
-    requires:
-      - name: cpapp-db
+#this section specifies the application modules and related configs
+modules:      
+- name: cpapp-srv                 #CAP service exposing our OData endpoints 
+  type: nodejs
+  path: gen/srv
+  requires:
+  - name: cpapp-uaa               #bound to xsuaa for OAuth protection
+  - name: cpapp-db                #bound to a HANA HDI container to store and access data from the DB
+  provides:
+  - name: srv-api                 #exposes an endpoint to the service that can be accessed by ~{srv-api/srv-url} property in this MTA file
+    properties:
+      srv-url: ${default-url}
+  parameters:
+    buildpack: nodejs_buildpack
+  build-parameters:
+    builder: npm
 
-resources:
-  - name: cpapp-uaa
-    type: org.cloudfoundry.managed-service
+- name: cpapp-db-deployer       #DB deployer module, only kicks in at the deployment time when it deploys the design time DB artefacts to HDO Container
+  type: hdb 
+  path: gen/db                  #location from where the design time artefacts are picked by the deployer
+  requires:
+  - name: cpapp-db              #HDI COntainer where the artefacts are deployed to
+  parameters:
+    buildpack: nodejs_buildpack
+
+- name: cpapp-destinations                  #This is a temporary module used for deploying configurations alongside your app modules, 
+  type: com.sap.application.content         #in this case destinations and their configs
+  requires:
+  - name: cpapp-uaa                         #Destination service requires access to the xsuaa instance
     parameters:
-      service: xsuaa
-      service-plan: application
-      path: ./xs-security.json
-      config:
-        xsappname: cpapp-${org}-${space}
-        tenant-mode: dedicated
-        role-collections:                     #we can override the xs-security.json confg here as we use {space} in the names of our roles
-         - name: 'RiskManager-${space}'       #allows us to safely deploy this app in different spaces without name conflicts while still using the role templates from xs-security.json 
-           description: Manage Risks
-           role-template-references:
-             - $XSAPPNAME.RiskManager
-         - name: 'RiskViewer-${space}'
-           description: View Risks
-           role-template-references:
-             - $XSAPPNAME.RiskViewer
-  - name: cpapp-db
-    type: com.sap.xs.hdi-container
+      service-key:
+        name: cpapp-uaa-key                 #Destination service will use this service key to communicate cpapp-uaa instance for token exchange 
+  - name: cpapp-html5-repo-host             #Destination service requires access to the HTML5 Repo Host instance
     parameters:
-      service: hana
-      service-plan: hdi-shared
+      service-key:
+        name: cpapp-html5-repo-host-key     #Destination service will use this service key to communicate with HTML5 Apps Repo service 
+  - name: srv-api                           #to access CAP service endpoint URL after deployment 
+  - name: cpapp-destination                 #to access the destination service instance to configure instance level destinations at time of deployment 
+    parameters:
+      content-target: true
+  parameters:
+    content:    #content to be configured in the destination service as instance level detinations
+      instance:
+        destinations:                   #All these will be destinations configured under the destination service instance <cpapp-destination>, not at BTP sub-account level
+        - Authentication: OAuth2UserTokenExchange                   # Auth Type of our destination
+          Name: cpapp-app-srv                                       # Destination Name
+          TokenServiceInstanceName: cpapp-uaa                       # Name of the xsuaa instance used for token creation
+          TokenServiceKeyName: cpapp-uaa-key                        # service key to communicate with the xsuaa instance to perform token exchnage and configure OAuth2UserTokenExchange 
+          URL: ~{srv-api/srv-url}                                   # Access the CAP service endpoint and make that as the Destination URL dynamically
+          sap.cloud.service: cpapp.service                          # Goes under Additonal Properties -> {"sap.cloud.service":"cpapp.service"}, we also configured this in manifest.json files of our UIs
+        - Name: cpapp-html5-repo-host                         
+          ServiceInstanceName: cpapp-html5-repo-host
+          ServiceKeyName: cpapp-html5-repo-host-key
+          sap.cloud.service: cpapp.service
+        - Authentication: OAuth2UserTokenExchange                   # Auth Type of our destination 
+          Name: cpapp-uaa                                           # Destination Name
+          ServiceInstanceName: cpapp-uaa                            # Name of the xsuaa instance that this destination points at
+          ServiceKeyName: cpapp-uaa-key                             # service key to communicate with the xsuaa instance 
+          sap.cloud.service: cpapp.service
+        existing_destinations_policy: update
+  build-parameters:
+    no-source: true 
+
+- name: cpapp-app-content                 #This is a temporary module used for deploying configurations with your app modules, 
+  type: com.sap.application.content       #in this case application UI/static resources to HTML5 Repo Host
+  path: .
+  requires:
+  - name: cpapp-html5-repo-host           #to access HTML App Repo service instance
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources             #location of zip files generated as result of build commands
+    requires:
+    - artifacts:
+      - nsrisks.zip
+      name: nsrisks
+      target-path: resources/
+    - artifacts:
+      - nsmitigations.zip
+      name: nsmitigations
+      target-path: resources/
+
+- name: nsrisks                       #HTML5 App Module for Risk Fiori App
+  type: html5
+  path: app/risks
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf              #the build script <build:cf> is configured in package.json under app/risks folder -> "ui5 build preload --clean-dest --config ui5-deploy.yaml --include-task=generateCachebusterInfo"
+    supported-platforms: []
+
+- name: nsmitigations               #HTML5 App Module for Mitigations Fiori App
+  type: html5
+  path: app/mitigations
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+
+#this section specific the BTP services and instance configs for those services 
+resources:    
+- name: cpapp-uaa                                           #creates and configures the xsuaa instance for our modules
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      role-collections:                                     
+      - description: Manage Risks
+        name: RiskManager-${space}                #configure Role Collections names to contain space name to allow deployment of the same app in multiple spaces of same org                
+        role-template-references:                 #use the template from xs-security.json file
+        - $XSAPPNAME.RiskManager
+      - description: View Risks
+        name: RiskViewer-${space}
+        role-template-references:
+        - $XSAPPNAME.RiskViewer
+      tenant-mode: dedicated
+      xsappname: cpapp-${org}-${space}
+    path: ./xs-security.json
+    service: xsuaa
+    service-plan: application
+
+- name: cpapp-db                                         #creates the HANA HDI Container service instance 
+  type: com.sap.xs.hdi-container
+  parameters:
+    service: hana
+    service-plan: hdi-shared
+
+- name: cpapp-destination                           #creates a service instance of Destination service & configures it
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: true                    #allows the destiation service to communicate with the HTML5 App Repo using a destination named UI5
+      init_data:
+        instance:
+          destinations:
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+          existing_destinations_policy: update    #each deployment will override the destination configs on BTP CF
+    service: destination
+    service-plan: lite
+
+- name: cpapp-html5-repo-host                           #creates a service instance of HTML5 APP Repo Host service to deploy our UIs to
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-plan: app-host
+

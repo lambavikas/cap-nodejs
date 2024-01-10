@@ -16,7 +16,7 @@
   "scripts": {
     "cleanup": "rm -rf node_modules && rm -rf */node_modules && rm -rf */*/node_modules",
     "cpapp-run": "cds watch cpapp",
-    "cpapp-build": "mbt build -s ./cpapp -t ./cpapp",
+    "cpapp-build": "mbt build -s ./cpapp -t ./",
     "cpapp-deploy": "cf deploy ./cpapp/cpapp_1.0.0.mtar"
   },
   "keywords": [],
