@@ -9,7 +9,8 @@
   "workspaces": [
     "./cpapp",
     "./approuter-samples/sample1",
-    "./approuter-samples/sample2"
+    "./approuter-samples/sample2",
+    "./approuter-samples/sample3"
   ],
   "devDependencies": {
     "@sap/cds-dk": "^7",
@@ -20,9 +21,15 @@
     "cpapp-run": "cds watch cpapp",
     "cpapp-build": "mbt build -s ./cpapp -t ./",
     "cpapp-deploy": "cf deploy ./cpapp/cpapp_1.0.0.mtar",
+    "cpapp-undeploy": "cf undeploy cpapp --delete-service-keys --delete-services",
     "approuter-sample1-deploy": "cd ./approuter-samples/sample1 && cf push approuter-sample1 --random-route",
+    "approuter-sample1-undeploy": "cf delete approuter-sample1 -r -f",
     "approuter-sample2-build": "cd ./approuter-samples/sample2 && mbt build",
-    "approuter-sample2-deploy": "cd ./approuter-samples/sample2 && cf deploy mta_archives/approuter-sample2_1.0.0.mtar"
+    "approuter-sample2-deploy": "cd ./approuter-samples/sample2 && cf deploy mta_archives/approuter-sample2_1.0.0.mtar",
+    "approuter-sample2-undeploy": "cf undeploy approuter-sample2 --delete-service-keys --delete-services",
+    "approuter-sample3-build": "cd ./approuter-samples/sample3 && mbt build",
+    "approuter-sample3-deploy": "cd ./approuter-samples/sample3 && cf deploy mta_archives/approuter-sample3_1.0.0.mtar",
+    "approuter-sample3-undeploy": "cf undeploy approuter-sample3 --delete-service-keys --delete-services"
   },
   "keywords": [],
   "author": "vikas.lamba@sap.com",
